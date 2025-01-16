@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import TodoTable from './components/TodoTable';
+import TodoContextProvider, { TodoContext } from './contexts/TodoContext';
 
 class App extends React.Component {
     render() {
         return (
-            <div>
-                hello
-            </div>
+            <TodoContextProvider>
+                <TodoTable/>
+            </TodoContextProvider>
         );
     }
 }
