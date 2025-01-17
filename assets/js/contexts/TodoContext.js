@@ -7,7 +7,7 @@ class TodoContextProvider extends React.Component {
         super(props);
         this.state= {
             todos: [
-                {name: 'do something'}
+                {name: 'do something'},
             ],
         }
     }
