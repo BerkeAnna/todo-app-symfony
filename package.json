@@ -28,6 +28,7 @@
         "@material-ui/icons": "^4.11.3",
         "@mui/icons-material": "^6.4.0",
         "@mui/material": "^6.4.0",
+        "axios": "^1.7.9",
         "prop-types": "^15.8.1",
         "react": "^19.0.0",
         "react-dom": "^19.0.0"
