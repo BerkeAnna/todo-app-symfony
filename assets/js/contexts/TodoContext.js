@@ -50,7 +50,7 @@ class TodoContextProvider extends React.Component {
                 return todo.id === data.id;
             });
 
-            todo.name = todo.name;
+            todo.name = data.name;
 
             this.setState({
                 todos: todos,
@@ -62,16 +62,22 @@ class TodoContextProvider extends React.Component {
 
     //delete
     deleteTodo(data){
-        let todos = [...this.state.todos];
-        let todo = todos.find(todo => {
-            return todo.id === data.id;
-        })
-
-        todos.splice(todos.indexOf(todo), 1);
-
-        this.setState({
-            todos: todos,
-        })
+      axios.delete('/api/todo/delete/' + data.id)
+        .then(response => {
+            //message 
+            let todos = [...this.state.todos];
+            let todo = todos.find(todo => {
+                return todo.id === data.id;
+            })
+    
+            todos.splice(todos.indexOf(todo), 1);
+    
+            this.setState({
+                todos: todos,
+            })
+        }).catch(error => {
+            console.error(error);
+        });
     }
 
     render() {
