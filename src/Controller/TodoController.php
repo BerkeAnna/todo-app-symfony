@@ -39,28 +39,41 @@ final class TodoController extends AbstractController
     }
 
     #[Route('/create', name: 'api_todo_create', methods: ['POST'])]
-    public function create(Request $request)
-
+    public function create(Request $request): Response
     {
-      try {
-        $content = json_decode($request->getContent(), true);
-
-        if (!isset($content['name'])) {
-            return $this->json(['error' => 'Missing name field'], 400);
+          $content = json_decode($request->getContent(), true);
+  
+          if (!isset($content['name'])) {
+              return $this->json(['error' => 'Missing name field'], 400);
+          }
+  
+          $todo = new Todo();
+          $todo->setName($content['name']);
+  
+          try {
+            $this->entityManager->persist($todo);
+            $this->entityManager->flush();
+    
+            
+        } catch (\Exception $exception) {
+            return $this->json([
+               'message' => [
+                      'text' => ['Could not submit To-Do to the database.'],
+                      'level' => 'error'
+                    ],
+                'details' => $exception->getMessage()
+            ], 500);
         }
 
-        $todo = new Todo();
-        $todo->setName($content['name']);
-
-        $this->entityManager->persist($todo);
-        $this->entityManager->flush();
-
-        return $this->json(['todo' => $todo->toArray()]);
-
-      } catch (Exception $exception) {
-        //error
-      }
+        return $this->json([
+          'todo' => $todo->toArray(),
+          'message' => [
+              'text' => ['To-Do has been created!', 'Task: ' . $content['name']],
+              'level' => 'success'
+          ]
+      ]);
     }
+    
 
 
     #[Route('/update/{id}', name: 'api_todo_update', methods: ['PUT'])]
