@@ -16,6 +16,26 @@ function TodoTable() {
     const [deleteConfirmationIsShown, setDeleteConfirmationIsShown] = useState(false);
     const [todoToBeDeleted, setTodoToBeDeleted] = useState(null);
 
+    const onCreateSubmit = (event) => {
+        event.preventDefault();
+        context.createTodo(event, {name: addTodo});
+        setAddTodo('');
+    };
+
+    const onEditSubmit = (todoId, event) => {
+        event.preventDefault();
+    
+        if (!editTodo.trim()) {
+            alert("Task name cannot be empty!");
+            return;
+        }
+    
+        context.updateTodo({ id: todoId, name: editTodo });
+    
+        setEditIsShown(false);
+        setEditTodo('');
+    };
+    
 
     return (
         <Fragment>
@@ -33,10 +53,12 @@ function TodoTable() {
                     <TableBody>
                         <TableRow>
                             <TableCell>
-                                <TextField value={addTodo} onChange={(event) => setAddTodo(event.target.value)} label="New Task" fullWidth={true}/>
+                                <form onSubmit={onCreateSubmit}>
+                                    <TextField type="text" value={addTodo} onChange={(event) => setAddTodo(event.target.value)} label="New Task" fullWidth={true}/>
+                                </form>
                             </TableCell>
                             <TableCell align='right'>
-                                <IconButton type="submit">
+                                <IconButton onClick={onCreateSubmit}>
                                     <AddIcon />
                                 </IconButton>
                             </TableCell>
@@ -45,28 +67,29 @@ function TodoTable() {
                             <TableRow key={'todo' + index}>
                                 <TableCell>
                                     {editIsShown === todo.id ? 
-                                        <TextField 
-                                            fullWidth={true} 
-                                            value={editTodo} 
-                                            onChange={(event) => setEditTodo(event.target.value)} 
-                                            InputProps= {{
-                                                endAdornment: <Fragment>
-                                                                <IconButton><DoneIcon 
-                                                                            onClick={()=> {
-                                                                                context.updateTodo({id: todo.id, name: editTodo}); 
-                                                                                setEditIsShown(false); 
-                                                                            }}>
-                                                                </DoneIcon></IconButton>
-                                                                <IconButton 
-                                                                            onClick={() => {
-                                                                                setEditIsShown(false); 
-                                                                                setEditTodo('')
-                                                                            }}>
-                                                                <CloseIcon></CloseIcon></IconButton>
-                                                            </Fragment>
-                                            }}
-                                            
+                                        <form onSubmit={(event) => onEditSubmit(todo.id, event)}>
+                                            <TextField 
+                                                type="text"
+                                                fullWidth={true} 
+                                                autoFocus={true}
+                                                value={editTodo} 
+                                                onChange={(event) => setEditTodo(event.target.value)} 
+                                                InputProps= {{
+                                                    endAdornment: <Fragment>
+                                                                  <IconButton onClick={(event) => onEditSubmit(todo.id, event)}>
+                                                                    <DoneIcon />
+                                                                  </IconButton>
+
+                                                                    <IconButton 
+                                                                                onClick={() => {
+                                                                                    setEditIsShown(false); 
+                                                                                }}>
+                                                                    <CloseIcon></CloseIcon></IconButton>
+                                                                </Fragment>
+                                                }}
+                                                
                                             />
+                                        </form>
                                         :
                                         todo.name
                                     }
