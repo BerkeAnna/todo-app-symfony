@@ -1,7 +1,7 @@
 import React, { Fragment, useContext, useState } from 'react';
 import { TodoContext } from '../contexts/TodoContext';
 import DeleteDialog from '../components/DeleteDialog';
-import { IconButton, InputAdornment, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
+import { IconButton, InputAdornment, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -10,30 +10,32 @@ import CloseIcon from '@mui/icons-material/Close';
 
 function TodoTable() {
     const context = useContext(TodoContext);
-    const [addTodo, setAddTodo] = useState('');
+    const [addTodoName, setAddTodoName] = useState('');
+    const [addTodoDescription, setAddTodoDescription] = useState('');
     const [editIsShown, setEditIsShown] = useState(false);
-    const [editTodo, setEditTodo] = useState('');
+    const [editTodoName, setEditTodoName] = useState('');
+    const [editTodoDescription, setEditTodoDescription] = useState('');
     const [deleteConfirmationIsShown, setDeleteConfirmationIsShown] = useState(false);
     const [todoToBeDeleted, setTodoToBeDeleted] = useState(null);
 
     const onCreateSubmit = (event) => {
         event.preventDefault();
-        context.createTodo(event, {name: addTodo});
-        setAddTodo('');
+        context.createTodo(event, {name: addTodoName, description: addTodoDescription});
+        setAddTodoName('');
+        setAddTodoDescription('');
     };
 
     const onEditSubmit = (todoId, event) => {
         event.preventDefault();
     
-        if (!editTodo.trim()) {
+        if (!editTodoName.trim()) {
             alert("Task name cannot be empty!");
             return;
         }
     
-        context.updateTodo({ id: todoId, name: editTodo });
+        context.updateTodo({ id: todoId, name: editTodoName, description: editTodoDescription });
     
         setEditIsShown(false);
-        setEditTodo('');
     };
     
 
@@ -44,25 +46,37 @@ function TodoTable() {
                 setAddTodo(''); // Mező kiürítése
             }}>
                 <Table>
+                    {/*HEAD*/}
                     <TableHead>
                         <TableRow>
                             <TableCell>Task</TableCell>
+                            <TableCell>Description</TableCell>
                             <TableCell align='right'>Actions</TableCell>
                         </TableRow>
                     </TableHead>
+                    {/*BODY*/}
                     <TableBody>
+                        {/*ADD*/}
                         <TableRow>
                             <TableCell>
                                 <form onSubmit={onCreateSubmit}>
-                                    <TextField type="text" value={addTodo} onChange={(event) => setAddTodo(event.target.value)} label="New Task" fullWidth={true}/>
+                                    <TextField type="text" value={addTodoName} onChange={(event) => setAddTodoName(event.target.value)} label="New Task" fullWidth={true}/>
                                 </form>
                             </TableCell>
+
+                            <TableCell>
+                                <form>
+                                    <TextField type="text" value={addTodoDescription} onChange={(event) => setAddTodoDescription(event.target.value)} label="Description" fullWidth={true} multiline={true}/>
+                                </form>
+                            </TableCell>
+
                             <TableCell align='right'>
                                 <IconButton onClick={onCreateSubmit}>
                                     <AddIcon />
                                 </IconButton>
                             </TableCell>
                         </TableRow>
+                        {/*DATA*/}
                         {context.todos.slice().reverse().map((todo, index) => (
                             <TableRow key={'todo' + index}>
                                 <TableCell>
@@ -72,36 +86,53 @@ function TodoTable() {
                                                 type="text"
                                                 fullWidth={true} 
                                                 autoFocus={true}
-                                                value={editTodo} 
-                                                onChange={(event) => setEditTodo(event.target.value)} 
-                                                InputProps= {{
-                                                    endAdornment: <Fragment>
-                                                                  <IconButton onClick={(event) => onEditSubmit(todo.id, event)}>
-                                                                    <DoneIcon />
-                                                                  </IconButton>
-
-                                                                    <IconButton 
-                                                                                onClick={() => {
-                                                                                    setEditIsShown(false); 
-                                                                                }}>
-                                                                    <CloseIcon></CloseIcon></IconButton>
-                                                                </Fragment>
-                                                }}
-                                                
+                                                value={editTodoName} 
+                                                onChange={(event) => setEditTodoName(event.target.value)} 
+                                            
                                             />
                                         </form>
                                         :
-                                        todo.name
+                                        <Typography>{todo.name}</Typography>
                                     }
                                 </TableCell>
+
+                                {/*DESCRIPTION*/}
+                                <TableCell>
+                                    {editIsShown === todo.id ? 
+                                        <TextField 
+                                            type="text"
+                                            fullWidth={true} 
+                                            autoFocus={true}
+                                            value={editTodoDescription} 
+                                            onChange={(event) => setEditTodoDescription(event.target.value)} 
+                                            multiline={true}
+                                        />
+                                        :
+                                        <Typography style={{whiteSpace: "pre-wrap"}}>{todo.description}</Typography>
+                                    }
+                                </TableCell>
+
                                 <TableCell align='right'>
-                                    <IconButton onClick={() => { setEditIsShown(todo.id); setEditTodo(todo.name); }}>
+                                    {editIsShown === todo.id ? 
+                                    <Fragment>
+                                        <IconButton onClick={(event) => onEditSubmit(todo.id, event)}>
+                                            <DoneIcon/>
+                                        </IconButton>
+                                        <IconButton onClick={() => setEditIsShown(false)}>
+                                            <CloseIcon/>
+                                        </IconButton>
+                                    </Fragment>
+                                                            :
+                                    <Fragment>
+                                    <IconButton onClick={() => { setEditIsShown(todo.id); setEditTodoName(todo.name); setEditTodoDescription(todo.description) }}>
                                         <EditIcon />
                                     </IconButton>
                                     <IconButton onClick={() =>{setDeleteConfirmationIsShown(true); 
                                         setTodoToBeDeleted(todo)}}>
                                         <DeleteIcon />
                                     </IconButton>
+                                    </Fragment>
+                                    }
                                 </TableCell>
                             </TableRow>
                         ))}
