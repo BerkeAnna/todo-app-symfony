@@ -15,26 +15,38 @@ class TodoContextProvider extends React.Component {
     }
 
     //create
-    createTodo(event, todo){
+    createTodo(event, todo) {
         event.preventDefault();
         axios.post('/api/todo/create', todo)
             .then(response => {
-                if(response.data.message.level === 'success'){
+                if (response.data.message.level === 'success') {
                     let data = [...this.state.todos];
                     data.push(response.data.todo);
                     this.setState({
                         todos: data,
-                        message: response.data.message,
+                        message: response.data.message,  // Üzenet beállítása sikeres létrehozás esetén
                     });
                 } else {
                     this.setState({
-                        message: response.data.message,
+                        message: response.data.message,  // Hibaüzenet beállítása ha a válaszban már van hiba
                     });
                 }
-            }).catch(error => {
-                console.error(error);
             })
+            .catch(error => {
+                if (error.response && error.response.status === 400) {
+                    // Ha a szerver 400-as hibát küldött (pl. név túl hosszú), állítsuk be a message state-et
+                    this.setState({
+                        message: {
+                            text: error.response.data.message.text[0],  // Backend válaszának első eleme
+                            level: 'error'
+                        }
+                    });
+                } else {
+                    console.error(error);
+                }
+            });
     }
+    
 
     //read
     readTodo(){

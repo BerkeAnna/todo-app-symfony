@@ -41,39 +41,47 @@ final class TodoController extends AbstractController
     #[Route('/create', name: 'api_todo_create', methods: ['POST'])]
     public function create(Request $request): Response
     {
-          $content = json_decode($request->getContent(), true);
-  
-          if (!isset($content['name'])) {
-              return $this->json(['error' => 'Missing name field'], 400);
-          }
-  
-          $todo = new Todo();
-          $todo->setName($content['name']);
-          $todo->setDescription($content['description']);
-  
-          try {
+        $content = json_decode($request->getContent(), true);
+    
+        if (!isset($content['name'])) {
+            return $this->json(['error' => 'Missing name field'], 400);
+        }
+    
+        if (strlen($content['name']) > 10) {
+            return $this->json([
+                'message' => [
+                    'text' => ['Task name cannot exceed 10 characters.'],
+                    'level' => 'error'
+                ]
+            ], 400);
+        }
+    
+        $todo = new Todo();
+        $todo->setName($content['name']);
+        $todo->setDescription($content['description']);
+    
+        try {
             $this->entityManager->persist($todo);
             $this->entityManager->flush();
-    
-            
         } catch (\Exception $exception) {
             return $this->json([
-               'message' => [
-                      'text' => ['Could not reach database when attempting to cretae To-Do.'],
-                      'level' => 'error'
-                    ],
+                'message' => [
+                    'text' => ['Could not reach database when attempting to create To-Do.'],
+                    'level' => 'error'
+                ],
                 'details' => $exception->getMessage()
             ], 500);
         }
-
+    
         return $this->json([
-          'todo' => $todo->toArray(),
-          'message' => [
-              'text' => ['To-Do has been created!', 'Task: ' . $content['name']],
-              'level' => 'success'
-          ]
-      ]);
+            'todo' => $todo->toArray(),
+            'message' => [
+                'text' => ['To-Do has been created!', 'Task: ' . $content['name']],
+                'level' => 'success'
+            ]
+        ]);
     }
+    
     
 
 
