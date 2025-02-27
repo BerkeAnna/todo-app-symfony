@@ -19,8 +19,7 @@ const AppRouter = () => {
             <TodoContextProvider>
                 <Routes>
                     {/* Ha a "/" vagy "/todo-list", akkor a TodoTable-t mutatja */}
-                    <Route path="/" element={<Navigate to="/todo-list" replace />} />
-                    <Route path="/todo-list" element={<TodoTable />} />
+                    <Route path="/" element={<TodoTable />} />
                     {/* Minden más esetben a NotFound oldalt jeleníti meg */}
                     <Route path="*" element={<NotFound />} />
                 </Routes>
