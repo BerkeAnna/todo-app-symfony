@@ -4,15 +4,11 @@ import TodoTable from './components/TodoTable';
 import AppSnackbar from './components/AppSnackbar';
 import TodoContextProvider, { TodoContext } from './contexts/TodoContext';
 import DefaultThemeProvider from './components/themes/DefaultThemeProvider';
+import Router from './components/Router';
 
 class App extends React.Component {
     render() {
-        return (
-            <TodoContextProvider>
-                <TodoTable/>
-                <AppSnackbar></AppSnackbar>
-            </TodoContextProvider>
-        );
+        return <Router/>
     }
 }
 
