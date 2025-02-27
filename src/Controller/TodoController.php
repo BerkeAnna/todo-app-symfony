@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Todo;
+use App\Form\TodoType;
 use App\Repository\TodoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -42,8 +43,25 @@ final class TodoController extends AbstractController
     public function create(Request $request): Response
     {
         $content = json_decode($request->getContent(), true);
-    
-        if (!isset($content['name'])) {
+
+        $form = $this->createForm(TodoType::class);
+        $form->submit((array)$content);
+
+        if (!$form->isValid()) {
+            $errors = [];
+            foreach ($form->getErrors(true, true) as $error) {
+                $errors[] = $error->getMessage();
+            }
+        
+            return $this->json([
+                'message' => [
+                    'text' => $errors, // Tömbként küldjük el!
+                    'level' => 'error'
+                ]
+            ], 400);
+        }
+        
+      /*  if (!isset($content['name'])) {
             return $this->json(['error' => 'Missing name field'], 400);
         }
     
@@ -54,7 +72,7 @@ final class TodoController extends AbstractController
                     'level' => 'error'
                 ]
             ], 400);
-        }
+        }*/
     
         $todo = new Todo();
         $todo->setName($content['name']);
@@ -88,37 +106,60 @@ final class TodoController extends AbstractController
     #[Route('/update/{id}', name: 'api_todo_update', methods: ['PUT'])]
     public function update(Request $request, Todo $todo)
     {
-        $content = json_decode($request->getContent());
-
-        if($todo->getName() === $content->name && $todo->getDescription() === $content->description) {
+        $content = json_decode($request->getContent(), true);
+    
+        $form = $this->createForm(TodoType::class);
+        $nonObject = (array)$content;
+        unset($nonObject['id']);
+        $form->submit($nonObject);
+    
+        if (!$form->isValid()) {
+            $errors = [];
+            foreach ($form->getErrors(true, true) as $error) {
+                $errors[] = $error->getMessage();
+            }
+    
             return $this->json([
-                'message' => ['text' => 'There was no change to the To-Do. Neither the name or the description was changed.', 'level'=> 'error'],
-            ]);
+                'message' => [
+                    'text' => $errors, // Tömbként küldjük el, hogy a frontend több sort kezeljen
+                    'level' => 'error'
+                ]
+            ], 400);
         }
-        $todo->setName($content->name);
-        $todo->setDescription($content->description);
-
-        try{
+    
+        if ($todo->getName() === $content['name'] && $todo->getDescription() === $content['description']) {
+            return $this->json([
+                'message' => [
+                    'text' => ['There was no change to the To-Do. Neither the name nor the description was changed.'],
+                    'level'=> 'error'
+                ]
+            ], 400);
+        }
+    
+        $todo->setName($content['name']);
+        $todo->setDescription($content['description']);
+    
+        try {
             $this->entityManager->flush();
-        }catch (Exception $exception){
-          return $this->json([
-            'message' => [
-                   'text' => ['Could not reach database when attempting to update a To-Do.'],
-                   'level' => 'error'
-                 ],
-             'details' => $exception->getMessage()
-         ], 500);
+        } catch (\Exception $exception) {
+            return $this->json([
+                'message' => [
+                    'text' => ['Could not reach database when attempting to update a To-Do.'],
+                    'level' => 'error'
+                ],
+                'details' => $exception->getMessage()
+            ], 500);
         }
-
-        return $this-> json([
+    
+        return $this->json([
             'todo' => $todo->toArray(),
-           'message' => [
-              'text' => ['To-Do successfully updated!'],
-              'level' => 'success'
-          ]
+            'message' => [
+                'text' => ['To-Do successfully updated!'],
+                'level' => 'success'
+            ]
         ]);
-        
     }
+    
 
     #[Route('/delete/{id}', name: 'api_todo_delete', methods: ['DELETE'])]
     public function delete(Todo $todo)

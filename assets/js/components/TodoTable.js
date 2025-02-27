@@ -20,16 +20,38 @@ function TodoTable() {
 
     const onCreateSubmit = (event) => {
         event.preventDefault();
-        context.createTodo(event, {name: addTodoName, description: addTodoDescription});
+    
+        if (!addTodoName.trim() || !addTodoDescription.trim()) {
+            context.setMessage({
+                text: ["Task name and description cannot be empty!"],
+                level: "error"
+            });
+            return;
+        }
+    
+        context.createTodo(event, { name: addTodoName, description: addTodoDescription });
         setAddTodoName('');
         setAddTodoDescription('');
     };
+    
 
     const onEditSubmit = (todoId, event) => {
         event.preventDefault();
     
-        if (!editTodoName.trim()) {
-            alert("Task name cannot be empty!");
+        if (!editTodoName.trim() || !editTodoDescription.trim()) {
+            context.setMessage({
+                text: ["Task name and description cannot be empty!"],
+                level: "error"
+            });
+            return;
+        }
+    
+        if (editTodoName === context.todos.find(t => t.id === todoId).name && 
+            editTodoDescription === context.todos.find(t => t.id === todoId).description) {
+            context.setMessage({
+                text: ["There was no change to the To-Do. Neither the name nor the description was changed."],
+                level: "error"
+            });
             return;
         }
     
@@ -37,6 +59,7 @@ function TodoTable() {
     
         setEditIsShown(false);
     };
+    
     
 
     return (
