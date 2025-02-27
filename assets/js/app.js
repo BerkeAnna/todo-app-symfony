@@ -4,11 +4,11 @@ import TodoTable from './components/TodoTable';
 import AppSnackbar from './components/AppSnackbar';
 import TodoContextProvider, { TodoContext } from './contexts/TodoContext';
 import DefaultThemeProvider from './components/themes/DefaultThemeProvider';
-import Router from './components/Router';
+import AppRouter from './components/AppRouter';
 
 class App extends React.Component {
     render() {
-        return <Router/>
+        return <AppRouter/>
     }
 }
 
