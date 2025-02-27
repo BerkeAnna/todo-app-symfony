@@ -7,6 +7,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
+import { styled } from '@mui/material/styles';
+
+
+
+const StyledTableHead = styled(TableHead)({
+    backgroundColor: '#250073',
+});
+
 
 function TodoTable() {
     const context = useContext(TodoContext);
@@ -17,6 +25,7 @@ function TodoTable() {
     const [editTodoDescription, setEditTodoDescription] = useState('');
     const [deleteConfirmationIsShown, setDeleteConfirmationIsShown] = useState(false);
     const [todoToBeDeleted, setTodoToBeDeleted] = useState(null);
+
 
     const onCreateSubmit = (event) => {
         event.preventDefault();
@@ -70,13 +79,13 @@ function TodoTable() {
             }}>
                 <Table>
                     {/*HEAD*/}
-                    <TableHead>
+                    <StyledTableHead>
                         <TableRow>
                             <TableCell>Task</TableCell>
                             <TableCell>Description</TableCell>
                             <TableCell align='right'>Actions</TableCell>
                         </TableRow>
-                    </TableHead>
+                    </StyledTableHead>
                     {/*BODY*/}
                     <TableBody>
                         {/*ADD*/}
@@ -147,10 +156,10 @@ function TodoTable() {
                                     </Fragment>
                                                             :
                                     <Fragment>
-                                    <IconButton onClick={() => { setEditIsShown(todo.id); setEditTodoName(todo.name); setEditTodoDescription(todo.description) }}>
+                                    <IconButton color="primary" onClick={() => { setEditIsShown(todo.id); setEditTodoName(todo.name); setEditTodoDescription(todo.description) }}>
                                         <EditIcon />
                                     </IconButton>
-                                    <IconButton onClick={() =>{setDeleteConfirmationIsShown(true); 
+                                    <IconButton color="primary" onClick={() =>{setDeleteConfirmationIsShown(true); 
                                         setTodoToBeDeleted(todo)}}>
                                         <DeleteIcon />
                                     </IconButton>
